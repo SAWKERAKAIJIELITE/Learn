@@ -1,13 +1,22 @@
 """second_robot_controller controller."""
 
+from typing import Any
 import numpy as np
 from controller import Robot
 
 
 MAX_VELOCITY = 14.81
+
 KUKA_WHEEL_RADIUS = 0.05
 KUKA_WIDTH = 0.302
 KUKA_LENGTH = 0.56
+
+Map = {
+    (1, 0): None,
+    (1, 1): None,
+    (2, 0): None,
+    (2, 1): None,
+}
 
 # PID Factors
 KP = 0.01
@@ -42,12 +51,16 @@ class RobotController(Robot):
 
         self.has_box = False
 
+        self.intersection = 1
+
+        self.branch = -1
+
         self.time_step = int(self.getBasicTimeStep())
 
-        self.front_right_wheel = self.getDevice("wheel1")
-        self.front_left_wheel = self.getDevice("wheel2")
-        self.back_right_wheel = self.getDevice("wheel3")
-        self.back_left_wheel = self.getDevice("wheel4")
+        self.front_right_wheel: Any = self.getDevice("wheel1")
+        self.front_left_wheel: Any = self.getDevice("wheel2")
+        self.back_right_wheel: Any = self.getDevice("wheel3")
+        self.back_left_wheel: Any = self.getDevice("wheel4")
 
         self.front_right_wheel.setPosition(float("inf"))
         self.front_left_wheel.setPosition(float("inf"))
@@ -59,22 +72,22 @@ class RobotController(Robot):
         self.back_right_wheel.setVelocity(0)
         self.back_left_wheel.setVelocity(0)
 
-        self.front_right_sensor = self.getDevice("wheel1sensor")
-        self.front_left_sensor = self.getDevice("wheel2sensor")
-        self.back_right_sensor = self.getDevice("wheel3sensor")
-        self.back_left_sensor = self.getDevice("wheel4sensor")
+        self.front_right_sensor: Any = self.getDevice("wheel1sensor")
+        self.front_left_sensor: Any = self.getDevice("wheel2sensor")
+        self.back_right_sensor: Any = self.getDevice("wheel3sensor")
+        self.back_left_sensor: Any = self.getDevice("wheel4sensor")
 
         self.front_right_sensor.enable(self.time_step)
         self.front_left_sensor.enable(self.time_step)
         self.back_right_sensor.enable(self.time_step)
         self.back_left_sensor.enable(self.time_step)
 
-        self.arm1 = self.getDevice("arm1")
-        self.arm2 = self.getDevice("arm2")
-        self.arm3 = self.getDevice("arm3")
-        self.arm4 = self.getDevice("arm4")
-        self.arm5 = self.getDevice("arm5")
-        self.left_finger = self.getDevice("finger::left")
+        self.arm1: Any = self.getDevice("arm1")
+        self.arm2: Any = self.getDevice("arm2")
+        self.arm3: Any = self.getDevice("arm3")
+        self.arm4: Any = self.getDevice("arm4")
+        self.arm5: Any = self.getDevice("arm5")
+        self.left_finger: Any = self.getDevice("finger::left")
 
         self.left_finger.setPosition(0.025)
         self.arm1.setPosition(0)
@@ -83,33 +96,21 @@ class RobotController(Robot):
         self.arm4.setPosition(0)
         self.arm5.setPosition(0)
 
-        # self.left_finger.setVelocity(0)
-        # self.arm1.setVelocity(0)
-        # self.arm2.setVelocity(0)
-        # self.arm3.setVelocity(0)
-        # self.arm4.setVelocity(0)
-        # self.arm5.setVelocity(0)
-
-        self.left_finger_sensor = self.getDevice("finger::leftsensor")
+        self.left_finger_sensor: Any = self.getDevice("finger::leftsensor")
         self.left_finger_sensor.enable(self.time_step)
 
-        self.center_sensor = self.getDevice("center sensor")
+        self.center_sensor: Any = self.getDevice("center sensor")
         self.center_sensor.enable(self.time_step)
 
-        self.camera = self.getDevice("camera")
+        self.camera: Any = self.getDevice("camera")
         self.camera.enable(self.time_step)
 
-        self.surface_detection_camera = self.getDevice(
-            "surface detection camera")
-        self.surface_detection_camera.enable(self.time_step)
-
-        self.wall_sensor = self.getDevice("wall sensor")
+        self.wall_sensor: Any = self.getDevice("wall sensor")
         self.wall_sensor.enable(self.time_step)
 
-        # self.gps = self.getDevice("gps")
-        # self.gps.enable(self.time_step)
-
-        self.sensors = list(map(lambda v: self.getDevice(f"lfs{v}"), range(8)))
+        self.sensors: list[Any] = list(
+            map(lambda v: self.getDevice(f"lfs{v}"), range(8))
+        )
 
         self.weights = [-1000, -1000, -1000, -1000, 1000, 1000, 1000, 1000]
 
@@ -118,7 +119,7 @@ class RobotController(Robot):
 
         self.step(self.time_step)
 
-        self.color = []
+        self.color: list[Any] = []
 
     def set_motors_velocity(
         self,
@@ -219,93 +220,252 @@ class RobotController(Robot):
         self.set_motors_velocity(velocity, -velocity, velocity, -velocity)
 
     def PID(self, velocity: float = MAX_VELOCITY):
+
         stage = 0
+
         while self.step(self.time_step) != -1:
-            near_wall = self.wall_sensor.getValue()
-            print(f'{near_wall=}')
 
-            # base_location = self.gps.getValues()
-            # print(f'{base_location=}')
+            print(f'{self.intersection=}')
+            print(f'{self.branch=}')
+            print(f'{Map=}')
 
-            if near_wall < 1000 and not self.has_box:
-                self.set_motors_velocity(0, 0, 0, 0)
-                self.set_arms_position_on_wall()
-                target_time = self.getTime() + 3
-                while self.getTime() < target_time:
-                    self.step(self.time_step)
+            if None in Map.values():
+                self.handle_color_order(velocity)
 
-                self.finger_grip()
-                target_time = self.getTime() + 2
-                while self.getTime() < target_time:
-                    self.step(self.time_step)
-
-                self.put_box_on_plate2()
-                target_time = self.getTime() + 3
-                while self.getTime() < target_time:
-                    self.step(self.time_step)
-
-                self.finger_release()
-                target_time = self.getTime() + 2
-                while self.getTime() < target_time:
-                    self.step(self.time_step)
-
-                self.has_box = True
-
-                self.turn_cw(velocity)
-                target_time = self.getTime() + 2.5
-                while self.getTime() < target_time:
-                    self.step(self.time_step)
-                # break
-
-            if len(self.color) == 4:
-                pass
-            else:
-                camera_array = self.camera.getImageArray()
-                camera_array = np.array(camera_array)
-
-                if not np.any(camera_array):
-                    pass
-                else:
-                    red = camera_array[0, 0, 0]
-                    green = camera_array[0, 0, 1]
-                    blue = camera_array[0, 0, 2]
-
-                    if self.color.count('red') == 0 and green == 0 and blue == 0:
-                        self.color.append("red")
-
-                    if self.color.count('green') == 0 and red == 0 and blue == 0:
-                        self.color.append("green")
-
-                    if self.color.count('blue') == 0 and green == 0 and red == 0:
-                        self.color.append("blue")
-
-                    if self.color.count('yellow') == 0 and green != 0 and red != 0 and blue == 0:
-                        self.color.append("yellow")
+            if not self.has_box:
+                if self.wall_sensor.getValue() < 1000:
+                    self.take_box(velocity)
 
             middle_sensor_value = self.sensors[3].getValue()
             center_sensor_value = self.center_sensor.getValue()
-            # front_side_out_line = all(
-            #     sensor.getValue() < 320 for sensor in self.sensors
-            # )
-
-            # print(f'{center_sensor_value=}')
-            # print(f'{front_side_out_line=}')
-
-            # if center_sensor_value < 320 and front_side_out_line:
-            #     self.turn_cw(velocity)
 
             if 500 < center_sensor_value < 600 and stage == 0 and not middle_sensor_value < 600:
-                # stage = 1
-                self.turn_cw(velocity)
+                box_color = 'blue'
+
+                if None in Map.values():
+
+                    if self.intersection == 1:
+
+                        if Map[(1, 0)] is None and self.branch == -1:
+                            self.turn_cw(velocity)
+
+                        elif Map[(1, 1)] is None and self.branch == 0:
+                            while self.step(self.time_step) != -1:
+                                self.PID_step(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not 500 < center_sensor_value < 600:
+                                    self.branch = 1
+                                    break
+                        else:
+                            self.turn_ccw(velocity)
+
+                elif self.intersection == 1 and self.branch == -11:
+
+                    while self.step(self.time_step) != -1:
+                        self.PID_step(velocity)
+
+                        middle_sensor_value = self.sensors[3].getValue(
+                        )
+                        center_sensor_value = self.center_sensor.getValue()
+
+                        if not 500 < center_sensor_value < 600:
+                            self.branch = -1
+                            break
+
+                elif self.has_box:
+                    coordination = (0, 0)
+                    for k, v in Map.items():
+                        if v == box_color:
+                            coordination = k
+
+                    if coordination[0] == self.intersection:
+                        if coordination[1] == 0:
+                            self.turn_cw(velocity)
+                        elif coordination[1] == 1:
+                            self.turn_ccw(velocity)
 
             elif 500 < center_sensor_value < 600 and middle_sensor_value < 600:
+
                 stage = 2
-                self.turn_cw(velocity)
+
+                box_color = 'blue'
+
+                if None in Map.values():
+
+                    if self.intersection == 1:
+
+                        if Map[(1, 0)] is None and self.branch == -1:
+                            while self.step(self.time_step) != -1:
+                                self.turn_cw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.branch = 0
+                                    break
+
+                        elif Map[(1, 1)] is None and self.branch == 0:
+                            pass
+
+                        else:
+                            while self.step(self.time_step) != -1:
+                                self.turn_ccw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.intersection = 2
+                                    self.branch = -11
+                                    break
+
+                    elif self.intersection == 2:
+
+                        if Map[(2, 0)] is None and self.branch == -11:
+                            while self.step(self.time_step) != -1:
+                                self.turn_cw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.branch = 0
+                                    break
+
+                        elif Map[(2, 1)] is None and self.branch == 0:
+                            while self.step(self.time_step) != -1:
+                                self.turn_cw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.branch = 1
+                                    break
+
+                elif self.has_box:
+                    coordination = (0, 0)
+                    for k, v in Map.items():
+                        if v == box_color:
+                            coordination = k
+
+                    if coordination[0] == self.intersection:
+                        if coordination[1] == 0:
+                            while self.step(self.time_step) != -1:
+                                self.turn_cw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.branch = 0
+                                    break
+                        elif coordination[1] == 1:
+                            while self.step(self.time_step) != -1:
+                                self.turn_ccw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.branch = 1
+                                    break
+                            # self.turn_cw(velocity)
+
+                else:
+                    while self.step(self.time_step) != -1:
+                        self.turn_cw(velocity)
+
+                        middle_sensor_value = self.sensors[3].getValue()
+                        center_sensor_value = self.center_sensor.getValue()
+
+                        if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                            self.intersection = 1
+                            self.branch = -11
+                            break
 
             else:
-                self.PID_step(velocity)
+                if self.has_box is True:
+                    self.PID_step(velocity/2)
+                else:
+                    self.PID_step(velocity)
                 if 600 < center_sensor_value:
                     stage = 0
+
+    def take_box(self, velocity: float):
+
+        self.set_motors_velocity(0, 0, 0, 0)
+
+        self.set_arms_position_on_wall()
+        target_time: Any = self.getTime() + 3
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.finger_grip()
+        target_time: Any = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.put_box_on_plate2()
+        target_time: Any = self.getTime() + 3
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.finger_release()
+        target_time: Any = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.has_box = True
+
+        self.turn_cw(velocity)
+        target_time: Any = self.getTime() + 2.5
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+    def handle_color_order(self, velocity: float):
+        bottom_camera_array = self.camera.getImageArray()
+        bottom_camera_array = np.array(bottom_camera_array)
+
+        red = bottom_camera_array[0, 0, 0]
+        green = bottom_camera_array[0, 0, 1]
+        blue = bottom_camera_array[0, 0, 2]
+
+        if not np.any(bottom_camera_array):
+            pass
+
+        elif red == green == blue:
+            pass
+
+        else:
+
+            if 'red' not in Map.values() and green == 0 and blue == 0:
+                Map[(self.intersection, self.branch)] = 'red'
+
+            elif 'green' not in Map.values() and red == 0 and blue == 0:
+                Map[(self.intersection, self.branch)] = 'green'
+
+            elif 'blue'not in Map.values() and green == 0 and red == 0:
+                Map[(self.intersection, self.branch)] = 'blue'
+
+            elif 'yellow'not in Map.values() and green != 0 and red != 0 and blue == 0:
+                Map[(self.intersection, self.branch)] = 'yellow'
+
+            self.turn_cw(velocity)
+            target_time: Any = self.getTime() + 2.5
+            while self.getTime() < target_time:
+                self.step(self.time_step)
 
 
 r = RobotController()

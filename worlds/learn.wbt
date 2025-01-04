@@ -7,7 +7,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 
 WorldInfo {
-  optimalThreadCount 20
+  optimalThreadCount 4
   contactProperties [
     ContactProperties {
       material1 "InteriorWheelMat"
@@ -34,8 +34,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.32960167098723053 -0.3577147933593607 -0.8737292859314579 4.681492093088904
-  position -1.8651432642474963 -11.893210300497191 11.188396873368575
+  orientation -0.46281363664412106 -0.41657364774012334 0.782476794380978 4.353237587838747
+  position 11.602274347596115 8.296872337759499 15.083245429767105
 }
 TexturedBackgroundLight {
 }
@@ -74,9 +74,9 @@ RectangleArena {
   wallHeight 0.15
 }
 Youbot {
-  translation -4.66396 0.253825 0.101876
-  rotation 0 0 1 -0.0007853071795862476
-  controller "pid"
+  translation 4.33604 0.246781 0.101876
+  rotation 0 0 1 3.14081
+  controller "<none>"
   bodySlot [
     DistanceSensor {
       translation 0.28 0 -0.03
@@ -146,24 +146,15 @@ Youbot {
   ]
 }
 Youbot {
-  translation 6.72478 0.22441 0.103743
-  rotation -0.0007461563142523547 -0.0007751953264824703 0.9999994211613128 3.14158
+  translation 5.7316 0.279471 0.102348
+  rotation -0.7204681836820913 0.6934811768018017 0.0030746907838869867 -0.002155307179585897
   name "youBot(1)"
-  controller "<none>"
+  controller "second_robot_controller"
   bodySlot [
-    Camera {
-      translation 0.27 0 -0.02
-      rotation 0 1 0 0.523599
-      name "surface detection camera"
-      fieldOfView 0.5
-    }
     DistanceSensor {
       translation 0.28 0 -0.04
       name "wall sensor"
       type "infra-red"
-    }
-    GPS {
-      translation 0.19 0 0.14
     }
     Camera {
       translation 0.0800641 -1.53437e-09 -0.079936
@@ -226,31 +217,33 @@ Youbot {
   ]
 }
 KukaBox {
-  translation 0.214375 -1.23064 0.012492
+  translation 0.524731 -1.45306 0.0149901
+  rotation 0 0 1 -0.5853953071795859
   color 1 0 0
-  size 0.032 0.025 0.03
+  size 0.025 0.025 0.03
 }
 KukaBox {
-  translation 4.749 -4.25632 0.0124917
-  rotation -1.53153e-16 8.84233e-17 1 1.0472
+  translation 4.66679 -4.20929 0.0124917
+  rotation -1.53153e-16 8.84233e-17 1 0.963085
   name "Kuka box(1)"
   color 1 1 0
   size 0.025 0.025 0.03
 }
 KukaBox {
-  translation -4.77985 -4.15195 0.0124917
-  rotation -2.0824e-16 -1.47992e-17 1 -1.0117996938995748
+  translation -4.71201 -4.1 0.0124917
+  rotation -2.0824e-16 -1.47992e-17 1 0.6191
   name "Kuka box(2)"
   color 0 1 0
   size 0.025 0.025 0.03
 }
 KukaBox {
-  translation 0.04234 4.68927 0.015
+  translation 0.05234 4.60927 0.025
   name "Kuka box(3)"
   color 0 0 1
+  size 0.025 0.025 0.03
 }
 Pose {
-  translation -3.64 0.25 0.00500263
+  translation 2.42 0.25 0.00497429
   rotation 0 1 0 4.692820414042842e-06
   children [
     Shape {
@@ -260,7 +253,7 @@ Pose {
         }
       }
       geometry Plane {
-        size 0.25 0.25
+        size 0.17 0.25
       }
     }
   ]
@@ -282,7 +275,7 @@ Pose {
   ]
 }
 Pose {
-  translation -3.14 0.25 0.00499734
+  translation 3.43 0.25 0.00496636
   rotation 0 1 0 4.692820414042842e-06
   children [
     Shape {
@@ -292,7 +285,7 @@ Pose {
         }
       }
       geometry Plane {
-        size 0.25 0.25
+        size 0.17 0.25
       }
     }
   ]
@@ -314,7 +307,7 @@ Pose {
   ]
 }
 Pose {
-  translation -3.39 0.25 0.00499889
+  translation 2.95 0.25 0.00496899
   rotation 0 1 0 4.692820414042842e-06
   children [
     Shape {
@@ -324,7 +317,7 @@ Pose {
         }
       }
       geometry Plane {
-        size 0.25 0.25
+        size 0.17 0.25
       }
     }
   ]
@@ -346,7 +339,7 @@ Pose {
   ]
 }
 Pose {
-  translation -3.89 0.25 0.00500384
+  translation 1.94 0.25 0.00497653
   rotation 0 1 0 4.692820414042842e-06
   children [
     Shape {
@@ -356,7 +349,7 @@ Pose {
         }
       }
       geometry Plane {
-        size 0.25 0.25
+        size 0.17 0.25
       }
     }
   ]
@@ -384,7 +377,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 0 0 1
+          diffuseColor 1 1 0
         }
       }
       geometry Plane {
@@ -400,7 +393,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 1 1 0
+          diffuseColor 0 0 1
         }
       }
       geometry Plane {
@@ -416,7 +409,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 1 0 0
+          diffuseColor 0 1 0
         }
       }
       geometry Plane {
@@ -432,7 +425,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 0 1 0
+          diffuseColor 1 0 0
         }
       }
       geometry Plane {

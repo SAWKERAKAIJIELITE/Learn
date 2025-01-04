@@ -8,6 +8,6 @@ orthographicViewHeight: 1
 textFiles: -1
 globalOptionalRendering: CoordinateSystem::DistanceSensorRays::CameraFrustums
 consoles: Console:All:All
-renderingDevicePerspectives: youBot(1):camera;0;1;0;0
+renderingDevicePerspectives: youBot(1):camera;0;1.03125;0.0202312;0.242593
 renderingDevicePerspectives: youBot(1):surface detection camera;0;1;0;0
 renderingDevicePerspectives: youBot:camera;0;1;0;0
