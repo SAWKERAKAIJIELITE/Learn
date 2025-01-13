@@ -53,6 +53,8 @@ class RobotController(Robot):
 
         self.intersection = 1
 
+        self.has_box_arrived = [False, False, False, False]
+
         self.branch = -1
 
         self.time_step = int(self.getBasicTimeStep())
@@ -225,24 +227,35 @@ class RobotController(Robot):
 
         while self.step(self.time_step) != -1:
 
-            print(f'{self.intersection=}')
-            print(f'{self.branch=}')
-            print(f'{Map=}')
+            # print(f'{self.intersection=}')
+            # print(f'{self.branch=}')
+            # print(f'{Map=}')
+            # print(self.color)
+            # box_color = 'blue'
 
-            if None in Map.values():
-                self.handle_color_order(velocity)
+            if len(self.color) == 4 and self.branch != -1:
+                if None in Map.values():
+                    self.handle_surface_color(velocity)
+            else:
+                self.handle_color_order()
 
             if not self.has_box:
                 if self.wall_sensor.getValue() < 1000:
                     self.take_box(velocity)
+            else:
+                try:
+                    index = self.has_box_arrived.index(False)
+                except ValueError:
+                    index = 0
+                box_color = self.color[index]
+                self.detect_surface(box_color, velocity, index)
 
             middle_sensor_value = self.sensors[3].getValue()
             center_sensor_value = self.center_sensor.getValue()
 
             if 500 < center_sensor_value < 600 and stage == 0 and not middle_sensor_value < 600:
-                box_color = 'blue'
 
-                if None in Map.values():
+                if None in Map.values() and len(self.color) == 4:
 
                     if self.intersection == 1:
 
@@ -292,9 +305,7 @@ class RobotController(Robot):
 
                 stage = 2
 
-                box_color = 'blue'
-
-                if None in Map.values():
+                if None in Map.values() and len(self.color) == 4:
 
                     if self.intersection == 1:
 
@@ -370,6 +381,7 @@ class RobotController(Robot):
                                 if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
                                     self.branch = 0
                                     break
+
                         elif coordination[1] == 1:
                             while self.step(self.time_step) != -1:
                                 self.turn_ccw(velocity)
@@ -381,7 +393,6 @@ class RobotController(Robot):
                                 if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
                                     self.branch = 1
                                     break
-                            # self.turn_cw(velocity)
 
                 else:
                     while self.step(self.time_step) != -1:
@@ -434,7 +445,32 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
-    def handle_color_order(self, velocity: float):
+    def handle_color_order(self):
+        camera_array = self.camera.getImageArray()
+        camera_array = np.array(camera_array)
+
+        red = camera_array[0, 0, 0]
+        green = camera_array[0, 0, 1]
+        blue = camera_array[0, 0, 2]
+
+        if not np.any(camera_array):
+            pass
+        elif red == green == blue:
+            pass
+        else:
+            if self.color.count('red') == 0 and green == 0 and blue == 0:
+                self.color.append("red")
+
+            elif self.color.count('green') == 0 and red == 0 and blue == 0:
+                self.color.append("green")
+
+            elif self.color.count('blue') == 0 and green == 0 and red == 0:
+                self.color.append("blue")
+
+            elif self.color.count('yellow') == 0 and green != 0 and red != 0 and blue == 0:
+                self.color.append("yellow")
+
+    def handle_surface_color(self, velocity: float):
         bottom_camera_array = self.camera.getImageArray()
         bottom_camera_array = np.array(bottom_camera_array)
 
@@ -467,6 +503,69 @@ class RobotController(Robot):
             while self.getTime() < target_time:
                 self.step(self.time_step)
 
+    def detect_surface(self, box_color: str, velocity: float, index: int):
+        bottom_camera_array = self.camera.getImageArray()
+        bottom_camera_array = np.array(bottom_camera_array)
+
+        red = bottom_camera_array[0, 0, 0]
+        green = bottom_camera_array[0, 0, 1]
+        blue = bottom_camera_array[0, 0, 2]
+
+        if not np.any(bottom_camera_array):
+            pass
+
+        elif red == green == blue:
+            pass
+
+        else:
+            if box_color == 'red' and green == 0 and blue == 0:
+                self.drop_box(velocity, index)
+
+            if box_color == 'green' and red == 0 and blue == 0:
+                self.drop_box(velocity, index)
+
+            if box_color == 'blue' and green == 0 and red == 0:
+                self.drop_box(velocity, index)
+
+            if box_color == 'yellow' and green != 0 and red != 0 and blue == 0:
+                self.drop_box(velocity, index)
+
+    def drop_box(self, velocity: float, index: int):
+        self.set_motors_velocity(0, 0, 0, 0)
+
+        self.finger_grip()
+        target_time = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.set_arms_position()
+        target_time = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.finger_release()
+        target_time = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.has_box = False
+        self.has_box_arrived[index] = True
+
+        self.arm1.setPosition(0)
+        self.arm2.setPosition(0)
+        self.arm3.setPosition(0)
+        self.arm4.setPosition(0)
+        self.arm5.setPosition(0)
+
+        target_time = self.getTime() + 3
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.turn_cw(velocity)
+        target_time: Any = self.getTime() + 2.5
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
 
 r = RobotController()
-r.PID(10)
+r.PID(8)
