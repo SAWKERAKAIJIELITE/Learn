@@ -31,12 +31,9 @@ integral = 0
 
 
 def range_conversion(s_start: float, s_end: float, d_start: float, d_end: float, value: float):
-    """
-    This function is responsible for mapping ranges
-    examples:
-    the mapping of the value 50 from range 0 -> 200 to range -50 -> 50 will be -25
-    """
+
     ratio = abs((value - s_start) / (s_end - s_start))
+
     if d_start < d_end:
         return d_start + abs(d_end - d_start) * ratio
 
@@ -50,10 +47,11 @@ class RobotController(Robot):
         Robot.__init__(self)
 
         self.has_box = False
-
-        self.intersection = 1
+        self.has_second_box = False
 
         self.has_box_arrived = [False, False, False, False]
+
+        self.intersection = 1
 
         self.branch = -1
 
@@ -233,22 +231,34 @@ class RobotController(Robot):
             # print(self.color)
             # box_color = 'blue'
 
+            index = self.has_box_arrived.index(
+                False
+            ) if False in self.has_box_arrived else 0
+
             if len(self.color) == 4 and self.branch != -1:
                 if None in Map.values():
                     self.handle_surface_color(velocity)
             else:
                 self.handle_color_order()
 
+            # if not self.has_second_box:
+            #     if self.wall_sensor.getValue() < 1000:
+            #         self.take_second_box(velocity)
+
             if not self.has_box:
                 if self.wall_sensor.getValue() < 1000:
                     self.take_box(velocity)
+
             else:
-                try:
-                    index = self.has_box_arrived.index(False)
-                except ValueError:
-                    index = 0
                 box_color = self.color[index]
-                self.detect_surface(box_color, velocity, index)
+                self.detect_surface(box_color, velocity, index, 'first')
+
+            # if self.has_second_box:
+            #     second_box_color = self.color[index + 1]
+            #     # print(second_box_color)
+            #     self.detect_surface(
+            #         second_box_color, velocity, index + 1, 'second'
+            #     )
 
             middle_sensor_value = self.sensors[3].getValue()
             center_sensor_value = self.center_sensor.getValue()
@@ -260,7 +270,7 @@ class RobotController(Robot):
                     if self.intersection == 1:
 
                         if Map[(1, 0)] is None and self.branch == -1:
-                            self.turn_cw(velocity)
+                            self.turn_clockwise(velocity)
 
                         elif Map[(1, 1)] is None and self.branch == 0:
                             while self.step(self.time_step) != -1:
@@ -274,15 +284,14 @@ class RobotController(Robot):
                                     self.branch = 1
                                     break
                         else:
-                            self.turn_ccw(velocity)
+                            self.turn_counter_clockwise(velocity)
 
                 elif self.intersection == 1 and self.branch == -11:
 
                     while self.step(self.time_step) != -1:
                         self.PID_step(velocity)
 
-                        middle_sensor_value = self.sensors[3].getValue(
-                        )
+                        middle_sensor_value = self.sensors[3].getValue()
                         center_sensor_value = self.center_sensor.getValue()
 
                         if not 500 < center_sensor_value < 600:
@@ -296,10 +305,32 @@ class RobotController(Robot):
                             coordination = k
 
                     if coordination[0] == self.intersection:
+
                         if coordination[1] == 0:
-                            self.turn_cw(velocity)
+                            self.turn_clockwise(velocity)
+
                         elif coordination[1] == 1:
-                            self.turn_ccw(velocity)
+                            self.turn_counter_clockwise(velocity)
+                    else:
+                        while self.step(self.time_step) != -1:
+                            self.PID_step(velocity)
+
+                            middle_sensor_value = self.sensors[3].getValue(
+                            )
+                            center_sensor_value = self.center_sensor.getValue()
+
+                            if not 500 < center_sensor_value < 600:
+                                self.intersection = 2
+                                break
+                else:
+                    if self.branch == 0:
+                        self.turn_counter_clockwise(velocity)
+
+                    elif self.branch == 1:
+                        self.turn_clockwise(velocity)
+
+                # elif self.has_second_box:
+                #     pass
 
             elif 500 < center_sensor_value < 600 and middle_sensor_value < 600:
 
@@ -370,6 +401,7 @@ class RobotController(Robot):
                             coordination = k
 
                     if coordination[0] == self.intersection:
+
                         if coordination[1] == 0:
                             while self.step(self.time_step) != -1:
                                 self.turn_cw(velocity)
@@ -393,24 +425,49 @@ class RobotController(Robot):
                                 if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
                                     self.branch = 1
                                     break
-
                 else:
-                    while self.step(self.time_step) != -1:
-                        self.turn_cw(velocity)
+                    if self.intersection == 1:
 
-                        middle_sensor_value = self.sensors[3].getValue()
-                        center_sensor_value = self.center_sensor.getValue()
+                        if self.branch == 0:
+                            self.turn_counter_clockwise(velocity)
+                            self.branch = -1
 
-                        if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
-                            self.intersection = 1
-                            self.branch = -11
-                            break
+                        elif self.branch == 1:
+                            self.turn_clockwise(velocity)
+                            self.branch = -1
+
+                    else:
+                        if self.branch == 1:
+                            while self.step(self.time_step) != -1:
+                                self.turn_cw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.intersection = 1
+                                    self.branch = -11
+                                    break
+                        elif self.branch == 0:
+                            while self.step(self.time_step) != -1:
+                                self.turn_ccw(velocity)
+
+                                middle_sensor_value = self.sensors[3].getValue(
+                                )
+                                center_sensor_value = self.center_sensor.getValue()
+
+                                if not (500 < center_sensor_value < 600 and middle_sensor_value < 600):
+                                    self.intersection = 1
+                                    self.branch = -11
+                                    break
 
             else:
                 if self.has_box is True:
-                    self.PID_step(velocity/2)
+                    self.PID_step(3 * velocity/4)
                 else:
                     self.PID_step(velocity)
+
                 if 600 < center_sensor_value:
                     stage = 0
 
@@ -439,6 +496,37 @@ class RobotController(Robot):
             self.step(self.time_step)
 
         self.has_box = True
+
+        self.turn_cw(velocity)
+        target_time: Any = self.getTime() + 2.5
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+    def take_second_box(self, velocity: float):
+
+        self.set_motors_velocity(0, 0, 0, 0)
+
+        self.set_arms_position_on_wall()
+        target_time: Any = self.getTime() + 3
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.finger_grip()
+        target_time: Any = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.put_box_on_plate2()
+        target_time: Any = self.getTime() + 3
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.finger_release()
+        target_time: Any = self.getTime() + 2
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
+        self.has_second_box = True
 
         self.turn_cw(velocity)
         target_time: Any = self.getTime() + 2.5
@@ -480,12 +568,9 @@ class RobotController(Robot):
 
         if not np.any(bottom_camera_array):
             pass
-
         elif red == green == blue:
             pass
-
         else:
-
             if 'red' not in Map.values() and green == 0 and blue == 0:
                 Map[(self.intersection, self.branch)] = 'red'
 
@@ -503,7 +588,7 @@ class RobotController(Robot):
             while self.getTime() < target_time:
                 self.step(self.time_step)
 
-    def detect_surface(self, box_color: str, velocity: float, index: int):
+    def detect_surface(self, box_color: str, velocity: float, index: int, box: str):
         bottom_camera_array = self.camera.getImageArray()
         bottom_camera_array = np.array(bottom_camera_array)
 
@@ -513,24 +598,30 @@ class RobotController(Robot):
 
         if not np.any(bottom_camera_array):
             pass
-
         elif red == green == blue:
             pass
-
         else:
             if box_color == 'red' and green == 0 and blue == 0:
-                self.drop_box(velocity, index)
+                self.drop_box(velocity)
 
-            if box_color == 'green' and red == 0 and blue == 0:
-                self.drop_box(velocity, index)
+            elif box_color == 'green' and red == 0 and blue == 0:
+                self.drop_box(velocity)
 
-            if box_color == 'blue' and green == 0 and red == 0:
-                self.drop_box(velocity, index)
+            elif box_color == 'blue' and green == 0 and red == 0:
+                self.drop_box(velocity)
 
-            if box_color == 'yellow' and green != 0 and red != 0 and blue == 0:
-                self.drop_box(velocity, index)
+            elif box_color == 'yellow' and green != 0 and red != 0 and blue == 0:
+                self.drop_box(velocity)
 
-    def drop_box(self, velocity: float, index: int):
+            if box == 'first':
+                self.has_box = False
+            else:
+                self.has_second_box = False
+
+            self.has_box_arrived[index] = True
+
+    def drop_box(self, velocity: float):
+
         self.set_motors_velocity(0, 0, 0, 0)
 
         self.finger_grip()
@@ -548,9 +639,6 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
-        self.has_box = False
-        self.has_box_arrived[index] = True
-
         self.arm1.setPosition(0)
         self.arm2.setPosition(0)
         self.arm3.setPosition(0)
@@ -566,6 +654,26 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
+    def turn_clockwise(self, velocity: float):
+        while self.step(self.time_step) != -1:
+            self.turn_cw(velocity)
+
+            middle_sensor_value = self.sensors[3].getValue()
+            center_sensor_value = self.center_sensor.getValue()
+
+            if 500 < center_sensor_value < 600 and middle_sensor_value < 600:
+                break
+
+    def turn_counter_clockwise(self, velocity: float):
+        while self.step(self.time_step) != -1:
+            self.turn_ccw(velocity)
+
+            middle_sensor_value = self.sensors[3].getValue()
+            center_sensor_value = self.center_sensor.getValue()
+
+            if 500 < center_sensor_value < 600 and middle_sensor_value < 600:
+                break
+
 
 r = RobotController()
-r.PID(8)
+r.PID(10)

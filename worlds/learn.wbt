@@ -34,8 +34,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.5404023991469351 -0.539103426943421 -0.6460129581162412 4.299996802063511
-  position 4.25614753417001 -4.963398547659526 24.913468845029282
+  orientation 0.5128213741216752 -0.5428349545996847 -0.6650898061981668 4.382619675785997
+  position 5.620186386158489 -6.113250989021839 22.777822592427313
 }
 TexturedBackgroundLight {
 }
@@ -46,7 +46,7 @@ RectangleArena {
   floorAppearance Appearance {
     texture ImageTexture {
       url [
-        "../../Untitled_1.png"
+        "../Untitled_1.png"
       ]
     }
     textureTransform TextureTransform {
@@ -63,7 +63,7 @@ RectangleArena {
   floorAppearance Appearance {
     texture ImageTexture {
       url [
-        "../../Untitled.png"
+        "../Untitled.png"
       ]
     }
     textureTransform TextureTransform {
@@ -146,8 +146,8 @@ Youbot {
   ]
 }
 Youbot {
-  translation 6.11246 3.7817 0.108352
-  rotation -0.0013430901040310996 -0.0002029660157210434 0.999999077456459 -1.8326053071795858
+  translation 5.49168 3.74071 0.107352
+  rotation 0.0015237497541727946 2.9083095308011685e-05 -0.9999988386697558 1.57081
   name "youBot(1)"
   controller "second_robot_controller"
   bodySlot [
@@ -223,21 +223,21 @@ KukaBox {
   size 0.025 0.025 0.03
 }
 KukaBox {
-  translation 4.67821 -4.19287 0.0124917
+  translation 4.66429 -4.19537 0.0124917
   rotation -1.53153e-16 8.84233e-17 1 0.963085
   name "Kuka box(1)"
   color 1 1 0
   size 0.025 0.025 0.03
 }
 KukaBox {
-  translation -4.71201 -4.1 0.0124917
+  translation -4.705 -4.105 0.0124917
   rotation -2.0824e-16 -1.47992e-17 1 0.6191
   name "Kuka box(2)"
   color 0 1 0
   size 0.025 0.025 0.03
 }
 KukaBox {
-  translation 0.05234 4.60927 0.025
+  translation 0.05234 4.56927 0.025
   name "Kuka box(3)"
   color 0 0 1
   size 0.025 0.025 0.03
@@ -249,7 +249,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 0 0 1
+          diffuseColor 1 0 0
         }
       }
       geometry Plane {
@@ -259,8 +259,8 @@ Pose {
   ]
 }
 Pose {
-  translation 5.86284 3.18144 0.00595945
-  rotation 2.3463999999825707e-06 3.057879999977286e-06 0.9999999999925719 1.309
+  translation 5.49284 3.18144 0.00596123
+  rotation 2.3463999999870816e-06 2.3463899999870817e-06 0.9999999999944944 1.5708
   children [
     Shape {
       appearance Appearance {
@@ -281,7 +281,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 0 1 0
+          diffuseColor 1 1 0
         }
       }
       geometry Plane {
@@ -291,8 +291,8 @@ Pose {
   ]
 }
 Pose {
-  translation 5.82767 3.0092 0.00595545
-  rotation 2.3464099999825706e-06 3.057889999977286e-06 0.9999999999925719 1.309
+  translation 5.48767 3.0092 0.00595707
+  rotation 2.3464099999870814e-06 2.3463999999870816e-06 0.9999999999944944 1.5708
   children [
     Shape {
       appearance Appearance {
@@ -313,7 +313,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 1 1 0
+          diffuseColor 0 1 0
         }
       }
       geometry Plane {
@@ -323,8 +323,8 @@ Pose {
   ]
 }
 Pose {
-  translation 5.78528 2.84143 0.00595703
-  rotation 2.3464099999825706e-06 3.0578999999772855e-06 0.9999999999925719 1.309
+  translation 5.49528 2.84143 0.0059584
+  rotation 2.3464099999870814e-06 2.3464099999870814e-06 0.9999999999944944 1.5708
   children [
     Shape {
       appearance Appearance {
@@ -345,7 +345,7 @@ Pose {
     Shape {
       appearance Appearance {
         material Material {
-          diffuseColor 1 0 0
+          diffuseColor 0 0 1
         }
       }
       geometry Plane {
@@ -355,8 +355,8 @@ Pose {
   ]
 }
 Pose {
-  translation 5.75307 2.67465 0.00595867
-  rotation 2.3464099999825706e-06 3.0578999999772855e-06 0.9999999999925719 1.309
+  translation 5.49307 2.66465 0.00595993
+  rotation 2.3464099999870814e-06 2.3464099999870814e-06 0.9999999999944944 1.5708
   children [
     Shape {
       appearance Appearance {
