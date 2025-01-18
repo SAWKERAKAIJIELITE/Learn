@@ -7,7 +7,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 
 WorldInfo {
-  optimalThreadCount 4
+  FPS 30
+  optimalThreadCount 40
   contactProperties [
     ContactProperties {
       material1 "InteriorWheelMat"
@@ -34,8 +35,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.5128213741216752 -0.5428349545996847 -0.6650898061981668 4.382619675785997
-  position 5.620186386158489 -6.113250989021839 22.777822592427313
+  orientation 0.4617622994487728 -0.47319203059764886 -0.7502432145555572 4.468242195827146
+  position 4.445296540713845 -10.608310568149998 20.344198838383427
 }
 TexturedBackgroundLight {
 }
@@ -79,6 +80,18 @@ Youbot {
   controller "pid"
   bodySlot [
     DistanceSensor {
+      translation 0.26 -0.11 -0.070008
+      rotation 0 1 0 1.57
+      name "lfs0"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0.26 0.11 -0.070008
+      rotation 0 1 0 1.57
+      name "lfs7"
+      type "infra-red"
+    }
+    DistanceSensor {
       translation 0.28 0 -0.03
       name "wall sensor"
       type "infra-red"
@@ -88,12 +101,6 @@ Youbot {
     Camera {
       translation 6.40816e-05 -1.53437e-09 -0.08
       rotation -9.589789999999998e-09 0.9999999999999999 -9.597429999999998e-09 1.5699953071795862
-    }
-    DistanceSensor {
-      translation 0.26 -0.11 -0.070008
-      rotation 0 1 0 1.57
-      name "lfs0"
-      type "infra-red"
     }
     DistanceSensor {
       translation 0.27 -0.08 -0.07
@@ -111,12 +118,6 @@ Youbot {
       translation 0.27 0.08 -0.07
       rotation 0 1 0 1.57
       name "lfs6"
-      type "infra-red"
-    }
-    DistanceSensor {
-      translation 0.26 0.11 -0.070008
-      rotation 0 1 0 1.57
-      name "lfs7"
       type "infra-red"
     }
     DistanceSensor {
@@ -217,7 +218,7 @@ Youbot {
   ]
 }
 KukaBox {
-  translation 0.508061 -1.442 0.0149901
+  translation 0.505 -1.445 0.0149901
   rotation 0 0 1 -0.5853953071795859
   color 1 0 0
   size 0.025 0.025 0.03

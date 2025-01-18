@@ -72,32 +72,32 @@ class RobotController(Robot):
         self.back_right_wheel.setVelocity(0)
         self.back_left_wheel.setVelocity(0)
 
-        self.front_right_sensor: Any = self.getDevice("wheel1sensor")
-        self.front_left_sensor: Any = self.getDevice("wheel2sensor")
-        self.back_right_sensor: Any = self.getDevice("wheel3sensor")
-        self.back_left_sensor: Any = self.getDevice("wheel4sensor")
+        # self.front_right_sensor: Any = self.getDevice("wheel1sensor")
+        # self.front_left_sensor: Any = self.getDevice("wheel2sensor")
+        # self.back_right_sensor: Any = self.getDevice("wheel3sensor")
+        # self.back_left_sensor: Any = self.getDevice("wheel4sensor")
 
-        self.front_right_sensor.enable(self.time_step)
-        self.front_left_sensor.enable(self.time_step)
-        self.back_right_sensor.enable(self.time_step)
-        self.back_left_sensor.enable(self.time_step)
+        # self.front_right_sensor.enable(self.time_step)
+        # self.front_left_sensor.enable(self.time_step)
+        # self.back_right_sensor.enable(self.time_step)
+        # self.back_left_sensor.enable(self.time_step)
 
-        self.arm1: Any = self.getDevice("arm1")
+        # self.arm1: Any = self.getDevice("arm1")
         self.arm2: Any = self.getDevice("arm2")
         self.arm3: Any = self.getDevice("arm3")
         self.arm4: Any = self.getDevice("arm4")
-        self.arm5: Any = self.getDevice("arm5")
+        # self.arm5: Any = self.getDevice("arm5")
         self.left_finger: Any = self.getDevice("finger::left")
 
         self.left_finger.setPosition(0.025)
-        self.arm1.setPosition(0)
+        # self.arm1.setPosition(0)
         self.arm2.setPosition(0)
         self.arm3.setPosition(0)
         self.arm4.setPosition(0)
-        self.arm5.setPosition(0)
+        # self.arm5.setPosition(0)
 
-        self.left_finger_sensor: Any = self.getDevice("finger::leftsensor")
-        self.left_finger_sensor.enable(self.time_step)
+        # self.left_finger_sensor: Any = self.getDevice("finger::leftsensor")
+        # self.left_finger_sensor.enable(self.time_step)
 
         self.center_sensor: Any = self.getDevice("center sensor")
         self.center_sensor.enable(self.time_step)
@@ -235,7 +235,7 @@ class RobotController(Robot):
                 False
             ) if False in self.has_box_arrived else 0
 
-            if len(self.color) == 4 and self.branch != -1:
+            if len(self.color) == 4 and self.branch != -1 and self.branch != -11:
                 if None in Map.values():
                     self.handle_surface_color(velocity)
             else:
@@ -245,7 +245,7 @@ class RobotController(Robot):
             #     if self.wall_sensor.getValue() < 1000:
             #         self.take_second_box(velocity)
 
-            if not self.has_box:
+            if not self.has_box and self.branch == -1:
                 if self.wall_sensor.getValue() < 1000:
                     self.take_box(velocity)
 
@@ -639,11 +639,11 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
-        self.arm1.setPosition(0)
+        # self.arm1.setPosition(0)
         self.arm2.setPosition(0)
         self.arm3.setPosition(0)
         self.arm4.setPosition(0)
-        self.arm5.setPosition(0)
+        # self.arm5.setPosition(0)
 
         target_time = self.getTime() + 3
         while self.getTime() < target_time:

@@ -69,21 +69,21 @@ class RobotController(Robot):
         self.back_right_wheel.setVelocity(0)
         self.back_left_wheel.setVelocity(0)
 
-        self.front_right_sensor: Any = self.getDevice("wheel1sensor")
-        self.front_left_sensor: Any = self.getDevice("wheel2sensor")
-        self.back_right_sensor: Any = self.getDevice("wheel3sensor")
-        self.back_left_sensor: Any = self.getDevice("wheel4sensor")
+        # self.front_right_sensor: Any = self.getDevice("wheel1sensor")
+        # self.front_left_sensor: Any = self.getDevice("wheel2sensor")
+        # self.back_right_sensor: Any = self.getDevice("wheel3sensor")
+        # self.back_left_sensor: Any = self.getDevice("wheel4sensor")
 
-        self.front_right_sensor.enable(self.time_step)
-        self.front_left_sensor.enable(self.time_step)
-        self.back_right_sensor.enable(self.time_step)
-        self.back_left_sensor.enable(self.time_step)
+        # self.front_right_sensor.enable(self.time_step)
+        # self.front_left_sensor.enable(self.time_step)
+        # self.back_right_sensor.enable(self.time_step)
+        # self.back_left_sensor.enable(self.time_step)
 
         self.arm1: Any = self.getDevice("arm1")
         self.arm2: Any = self.getDevice("arm2")
         self.arm3: Any = self.getDevice("arm3")
         self.arm4: Any = self.getDevice("arm4")
-        self.arm5: Any = self.getDevice("arm5")
+        # self.arm5: Any = self.getDevice("arm5")
         self.left_finger: Any = self.getDevice("finger::left")
 
         self.left_finger.setPosition(0.025)
@@ -91,10 +91,10 @@ class RobotController(Robot):
         self.arm2.setPosition(0)
         self.arm3.setPosition(0)
         self.arm4.setPosition(0)
-        self.arm5.setPosition(0)
+        # self.arm5.setPosition(0)
 
-        self.left_finger_sensor: Any = self.getDevice("finger::leftsensor")
-        self.left_finger_sensor.enable(self.time_step)
+        # self.left_finger_sensor: Any = self.getDevice("finger::leftsensor")
+        # self.left_finger_sensor.enable(self.time_step)
 
         self.center_sensor: Any = self.getDevice("center sensor")
         self.center_sensor.enable(self.time_step)
@@ -154,24 +154,24 @@ class RobotController(Robot):
     def put_box_on_plate(self):
         self.arm1.setPosition(0)
         self.arm2.setPosition(0.705)
-        self.arm3.setPosition(0.7)
-        self.arm4.setPosition(1.7)
+        self.arm3.setPosition(0.8)
+        self.arm4.setPosition(1.6)
 
     def put_second_box_on_plate(self):
         self.arm1.setPosition(0)
         self.arm2.setPosition(0.9)
-        self.arm3.setPosition(0.5)
-        self.arm4.setPosition(1.7)
+        self.arm3.setPosition(0.6)
+        self.arm4.setPosition(1.6)
 
     def finger_release(self):
-        self.arm3.setPosition(0.8)
-        self.arm4.setPosition(1.6)
+        # self.arm3.setPosition(0.8)
+        # self.arm4.setPosition(1.6)
         self.left_finger.setPosition(0.025)
 
     def second_finger_release(self):
-        self.arm3.setPosition(0.6)
-        self.arm4.setPosition(1.6)
-        # self.left_finger.setPosition(0.025)
+        # self.arm3.setPosition(0.6)
+        # self.arm4.setPosition(1.6)
+        self.left_finger.setPosition(0.025)
 
     def put_box_on_wall(self):
         self.arm2.setPosition(-0.42)
@@ -250,12 +250,10 @@ class RobotController(Robot):
                 False
             ) if False in self.has_box_arrived else 0
 
-            if len(self.color) == 4:
-                pass
-            else:
+            if len(self.color) != 4:
                 self.handle_color_order()
 
-            if len(self.color) >= 2:
+            if len(self.color) >= 2 and not (self.has_box and self.has_second_box):
                 # print(self.color)
                 box_color = self.color[index]
                 second_box_color = self.color[index + 1]
@@ -297,12 +295,12 @@ class RobotController(Robot):
 
             middle_sensor_value: Any = self.sensors[3].getValue()
             center_sensor_value: Any = self.center_sensor.getValue()
-            front_side_out_line = all(
-                sensor.getValue() < 320 for sensor in self.sensors
-            )
+            # front_side_out_line = all(
+            #     sensor.getValue() < 320 for sensor in self.sensors
+            # )
 
-            if center_sensor_value < 320 and front_side_out_line and len(self.color) == 4:
-                self.turn_cw(velocity)
+            # if center_sensor_value < 320 and front_side_out_line and len(self.color) == 4:
+            #     self.turn_cw(velocity)
 
             if 500 < center_sensor_value < 600 and stage == 0 and not middle_sensor_value < 600:
 
@@ -381,14 +379,14 @@ class RobotController(Robot):
 
                 elif self.color[index] == 'yellow':
 
-                    if self.intersection == 1:
+                    # if self.intersection == 1:
 
-                        if self.has_box:
-                            self.turn_counter_clockwise(velocity)
+                    #     if self.has_box:
+                    self.turn_counter_clockwise(velocity)
 
-                    else:
-                        if not self.has_box:
-                            self.turn_counter_clockwise(velocity)
+                    # else:
+                    #     if not self.has_box:
+                    #         self.turn_counter_clockwise(velocity)
 
             elif 500 < center_sensor_value < 600 and middle_sensor_value < 600:
 
@@ -761,6 +759,15 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
+        self.arm1.setPosition(0)
+        self.arm2.setPosition(0)
+        self.arm3.setPosition(0)
+        self.arm4.setPosition(0)
+
+        target_time = self.getTime() + 3
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+
         self.has_box = True
 
         self.turn_cw(velocity)
@@ -773,7 +780,7 @@ class RobotController(Robot):
         self.set_motors_velocity(0, 0, 0, 0)
 
         self.set_arms_position()
-        target_time: Any = self.getTime() + 2
+        target_time: Any = self.getTime() + 3
         while self.getTime() < target_time:
             self.step(self.time_step)
 
