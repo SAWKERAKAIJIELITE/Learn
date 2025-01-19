@@ -7,7 +7,6 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 
 WorldInfo {
-  FPS 30
   optimalThreadCount 40
   contactProperties [
     ContactProperties {
@@ -35,8 +34,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.4617622994487728 -0.47319203059764886 -0.7502432145555572 4.468242195827146
-  position 4.445296540713845 -10.608310568149998 20.344198838383427
+  orientation 0.44206096086914815 -0.49055229406369844 -0.7509597550230558 4.547571100326709
+  position 2.5669436738828124 -8.926002175049081 16.087526951208954
 }
 TexturedBackgroundLight {
 }
@@ -75,7 +74,7 @@ RectangleArena {
   wallHeight 0.15
 }
 Youbot {
-  translation 4.36516 3.75143 0.101876
+  translation 4.34516 3.75144 0.101876
   rotation 0 0 1 -1.571595307179586
   controller "pid"
   bodySlot [

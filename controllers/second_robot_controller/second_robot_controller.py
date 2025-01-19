@@ -47,7 +47,6 @@ class RobotController(Robot):
         Robot.__init__(self)
 
         self.has_box = False
-        self.has_second_box = False
 
         self.has_box_arrived = [False, False, False, False]
 
@@ -72,32 +71,15 @@ class RobotController(Robot):
         self.back_right_wheel.setVelocity(0)
         self.back_left_wheel.setVelocity(0)
 
-        # self.front_right_sensor: Any = self.getDevice("wheel1sensor")
-        # self.front_left_sensor: Any = self.getDevice("wheel2sensor")
-        # self.back_right_sensor: Any = self.getDevice("wheel3sensor")
-        # self.back_left_sensor: Any = self.getDevice("wheel4sensor")
-
-        # self.front_right_sensor.enable(self.time_step)
-        # self.front_left_sensor.enable(self.time_step)
-        # self.back_right_sensor.enable(self.time_step)
-        # self.back_left_sensor.enable(self.time_step)
-
-        # self.arm1: Any = self.getDevice("arm1")
         self.arm2: Any = self.getDevice("arm2")
         self.arm3: Any = self.getDevice("arm3")
         self.arm4: Any = self.getDevice("arm4")
-        # self.arm5: Any = self.getDevice("arm5")
         self.left_finger: Any = self.getDevice("finger::left")
 
         self.left_finger.setPosition(0.025)
-        # self.arm1.setPosition(0)
         self.arm2.setPosition(0)
         self.arm3.setPosition(0)
         self.arm4.setPosition(0)
-        # self.arm5.setPosition(0)
-
-        # self.left_finger_sensor: Any = self.getDevice("finger::leftsensor")
-        # self.left_finger_sensor.enable(self.time_step)
 
         self.center_sensor: Any = self.getDevice("center sensor")
         self.center_sensor.enable(self.time_step)
@@ -155,13 +137,25 @@ class RobotController(Robot):
 
     def set_arms_position_on_wall(self):
         self.arm2.setPosition(-0.42)
-        self.arm3.setPosition(-1.35)
-        self.arm4.setPosition(-1.15)
+        self.arm3.setPosition(-1.3)
+        self.arm4.setPosition(-1.1)
 
     def put_box_on_plate2(self):
-        self.arm2.setPosition(0.5)
-        self.arm3.setPosition(1.1)
-        self.arm4.setPosition(1.35)
+        # self.arm2.setPosition(0.5)
+        # self.arm3.setPosition(1.1)
+        # self.arm4.setPosition(1)
+        self.arm2.setPosition(0.705)
+        target_time: Any = self.getTime() + 0.5
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+        self.arm3.setPosition(0.8)
+        target_time: Any = self.getTime() + 0.5
+        while self.getTime() < target_time:
+            self.step(self.time_step)
+        self.arm4.setPosition(1.6)
+        target_time: Any = self.getTime() + 1
+        while self.getTime() < target_time:
+            self.step(self.time_step)
 
     def PID_step(self, velocity: float = MAX_VELOCITY):
 
@@ -225,12 +219,6 @@ class RobotController(Robot):
 
         while self.step(self.time_step) != -1:
 
-            # print(f'{self.intersection=}')
-            # print(f'{self.branch=}')
-            # print(f'{Map=}')
-            # print(self.color)
-            # box_color = 'blue'
-
             index = self.has_box_arrived.index(
                 False
             ) if False in self.has_box_arrived else 0
@@ -241,10 +229,6 @@ class RobotController(Robot):
             else:
                 self.handle_color_order()
 
-            # if not self.has_second_box:
-            #     if self.wall_sensor.getValue() < 1000:
-            #         self.take_second_box(velocity)
-
             if not self.has_box and self.branch == -1:
                 if self.wall_sensor.getValue() < 1000:
                     self.take_box(velocity)
@@ -252,13 +236,6 @@ class RobotController(Robot):
             else:
                 box_color = self.color[index]
                 self.detect_surface(box_color, velocity, index, 'first')
-
-            # if self.has_second_box:
-            #     second_box_color = self.color[index + 1]
-            #     # print(second_box_color)
-            #     self.detect_surface(
-            #         second_box_color, velocity, index + 1, 'second'
-            #     )
 
             middle_sensor_value = self.sensors[3].getValue()
             center_sensor_value = self.center_sensor.getValue()
@@ -328,9 +305,6 @@ class RobotController(Robot):
 
                     elif self.branch == 1:
                         self.turn_clockwise(velocity)
-
-                # elif self.has_second_box:
-                #     pass
 
             elif 500 < center_sensor_value < 600 and middle_sensor_value < 600:
 
@@ -490,43 +464,12 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
-        self.finger_release()
-        target_time: Any = self.getTime() + 2
-        while self.getTime() < target_time:
-            self.step(self.time_step)
+        # self.finger_release()
+        # target_time: Any = self.getTime() + 2
+        # while self.getTime() < target_time:
+        #     self.step(self.time_step)
 
         self.has_box = True
-
-        self.turn_cw(velocity)
-        target_time: Any = self.getTime() + 2.5
-        while self.getTime() < target_time:
-            self.step(self.time_step)
-
-    def take_second_box(self, velocity: float):
-
-        self.set_motors_velocity(0, 0, 0, 0)
-
-        self.set_arms_position_on_wall()
-        target_time: Any = self.getTime() + 3
-        while self.getTime() < target_time:
-            self.step(self.time_step)
-
-        self.finger_grip()
-        target_time: Any = self.getTime() + 2
-        while self.getTime() < target_time:
-            self.step(self.time_step)
-
-        self.put_box_on_plate2()
-        target_time: Any = self.getTime() + 3
-        while self.getTime() < target_time:
-            self.step(self.time_step)
-
-        self.finger_release()
-        target_time: Any = self.getTime() + 2
-        while self.getTime() < target_time:
-            self.step(self.time_step)
-
-        self.has_second_box = True
 
         self.turn_cw(velocity)
         target_time: Any = self.getTime() + 2.5
@@ -615,8 +558,6 @@ class RobotController(Robot):
 
             if box == 'first':
                 self.has_box = False
-            else:
-                self.has_second_box = False
 
             self.has_box_arrived[index] = True
 
@@ -639,11 +580,9 @@ class RobotController(Robot):
         while self.getTime() < target_time:
             self.step(self.time_step)
 
-        # self.arm1.setPosition(0)
         self.arm2.setPosition(0)
         self.arm3.setPosition(0)
         self.arm4.setPosition(0)
-        # self.arm5.setPosition(0)
 
         target_time = self.getTime() + 3
         while self.getTime() < target_time:
